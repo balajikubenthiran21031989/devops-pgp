@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zendrix-deployment
+  labels:
+    app: zendrix
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: zendrix
+  template:
+    metadata:
+      labels:
+        app: zendrix
+    spec:
+      containers:
+      - name: zendrix
+        image: kkbalajius/zendrix-app-image:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: shared-storage
+          mountPath: /shared-storage
+      volumes:
+      - name: shared-storage
+        emptyDir: {}
