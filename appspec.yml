@@ -8,10 +8,6 @@ hooks:
     - location: scripts/install_dependencies.sh
       timeout: 300
       runas: ubuntu
-  BeforeInstall:
-    - location: scripts/boot.sh
-      timeout: 300
-      runas: root
   BeforeAllowTraffic:
     - location: scripts/start.sh
       timeout: 300
