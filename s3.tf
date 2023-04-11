@@ -6,16 +6,23 @@ resource "aws_s3_bucket" "zendrix_upload" {
   }
 }
 
+# Create a KMS key
+resource "aws_kms_key" "zendrix_s3_encryption" {
+  description = "KMS key for S3 encryption"
+}
+
 # Apply server-side encryption configuration to S3 bucket
 resource "aws_s3_bucket_server_side_encryption_configuration" "zendrix_upload" {
   bucket = aws_s3_bucket.zendrix_upload.id
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+      sse_algorithm     = "aws:kms"
+      kms_master_key_id = aws_kms_key.zendrix_s3_encryption.key_id
     }
   }
 }
+
 
 # Create IAM policy to allow users to upload files to S3 bucket
 resource "aws_iam_policy" "zendrix_s3_upload" {
@@ -33,8 +40,8 @@ resource "aws_iam_policy" "zendrix_s3_upload" {
         ]
         Effect   = "Allow"
         Resource = [
-          aws_s3_bucket.zendrix_upload.arn,
-          "${aws_s3_bucket.zendrix_upload.arn}/*"
+         "arn:aws:s3:::zendrix-upload",
+          "arn:aws:s3:::zendrix-upload/*"
         ]
       },
     ]
@@ -81,7 +88,7 @@ resource "aws_s3_bucket_policy" "zendrix_upload" {
           "s3:Delete*"
         ],
         Resource = [
-          "${aws_s3_bucket.zendrix_upload.arn}/*"
+          "arn:aws:s3:::zendrix-upload/*"
         ]
       }
     ]

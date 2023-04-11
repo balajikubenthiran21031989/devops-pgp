@@ -31,3 +31,7 @@ phases:
   post_build:
     commands:
       - echo "Docker image pushed successfully to DockerHub on $(date)"
+  artifacts:
+    files:
+      - '**/*'
+      

@@ -1,7 +1,7 @@
 resource "aws_autoscaling_group" "zendrix_asg" {
   name                      = "zendrix-asg"
   launch_configuration     = aws_launch_configuration.zendrix_lc.id
-  vpc_zone_identifier      = [aws_subnet.zendrix_private_subnet_1.id, aws_subnet.zendrix_private_subnet_2.id]
+  vpc_zone_identifier      = [aws_subnet.zendrix_public_subnet_1.id, aws_subnet.zendrix_public_subnet_2.id]
   health_check_grace_period = 300
   min_size                  = 2
   max_size                  = 5

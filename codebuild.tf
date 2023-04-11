@@ -2,7 +2,7 @@
 resource "aws_codebuild_source_credential" "zendrix_credential" {
   auth_type     = "PERSONAL_ACCESS_TOKEN"
   server_type   = "GITHUB"
-  token         = "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"
+  token         = "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"
   user_name      = "balajikubenthiran21031989"
 }
 
@@ -12,8 +12,10 @@ resource "aws_codebuild_project" "zendrix_build_project" {
   description    = "CodeBuild project for Zendrix app"
   service_role   = aws_iam_role.codebuild_role.arn
   source_version = "master"
+ 
   artifacts {
-    type = "NO_ARTIFACTS"
+    type              = "S3"
+    location          = "zendrix-upload"
   }
   environment {
     # environment settings here
@@ -37,7 +39,7 @@ resource "aws_codebuild_project" "zendrix_build_project" {
   }
   source {
     type            = "GITHUB"
-    location        = "https://github.com/balajikubenthiran21031989/aws-devops-pgp.git"
+    location        = "https://github.com/balajikubenthiran21031989/devops-pgp.git"
     git_clone_depth = 1
     buildspec       = "buildspec.yml"
     auth {
@@ -91,7 +93,10 @@ resource "aws_iam_role" "codebuild_role" {
         Action = [
           "s3:*"
         ]
-        Resource = "*"
+        Resource: [
+        "${aws_s3_bucket.zendrix_upload.arn}",
+        "${aws_s3_bucket.zendrix_upload.arn}/*"
+        ]
       },
       {
         Sid = "IAMPolicy"

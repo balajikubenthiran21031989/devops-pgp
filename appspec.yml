@@ -4,6 +4,10 @@ files:
   - source: /
     destination: /home/ubuntu/pgp-june
 hooks:
+  AfterInstall:
+    - location: scripts/install_dependencies.sh
+      timeout: 300
+      runas: ubuntu
   BeforeInstall:
     - location: scripts/boot.sh
       timeout: 300

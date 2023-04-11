@@ -13,7 +13,66 @@ resource "aws_iam_role" "codepipeline_role" {
       }
     ]
   })
+   # Attach PowerUserAccess managed policy
+  managed_policy_arns = [
+    "arn:aws:iam::aws:policy/PowerUserAccess"
+  ]
+
+  # Policy for CloudWatch Logs and S3 access
+  inline_policy {
+  name = "zendrix_inline_policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid = "CloudWatchLogsPolicy"
+        Effect = "Allow"
+        Action = [
+          "logs:*"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid = "S3Policy"
+        Effect = "Allow"
+        Action = [
+          "s3:*"
+        ]
+        Resource: [
+        "${aws_s3_bucket.zendrix_upload.arn}",
+        "${aws_s3_bucket.zendrix_upload.arn}/*"
+        ]
+      },
+      {
+        Sid = "IAMPolicy"
+        Effect = "Allow"
+        Action = [
+          "iam:*"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid = "CodeBuildPolicy"
+        Effect = "Allow"
+        Action = [
+          "codebuild:*"
+        ]
+        Resource = "arn:aws:codebuild:us-east-1:674463396899:project/zendrix-build-project"
+      },
+      {
+        Sid = "CodeDeployPolicy"
+        Effect = "Allow"
+        Action = [
+          "codedeploy:*"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+ }
 }
+
 
 resource "aws_iam_role_policy_attachment" "codepipeline_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AWSCodePipeline_FullAccess"
@@ -39,12 +98,12 @@ resource "aws_codepipeline" "zendrix_pipeline" {
       owner           = "ThirdParty"
       provider        = "GitHub"
       version         = "1" # Update the version to 2
-      output_artifacts = ["source_artifact"]
+      output_artifacts = ["artifacts"]
       configuration = {
         Owner               = "balajikubenthiran21031989"
-        Repo                = "aws-devops-pgp"
+        Repo                = "devops-pgp"
         Branch              = "master"
-        OAuthToken           = "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"
+        OAuthToken           = "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"
         PollForSourceChanges = "true" 
        }
     }
@@ -59,11 +118,11 @@ resource "aws_codepipeline" "zendrix_pipeline" {
       owner           = "AWS"
       provider        = "CodeBuild"
       version         = "1"
-      input_artifacts = ["source_artifact"]
-      output_artifacts = ["build_artifact"]
+      input_artifacts = ["artifacts"]
       configuration   = {
         ProjectName = aws_codebuild_project.zendrix_build_project.name
       }
+        run_order = 2
     }
   }
   
@@ -76,7 +135,7 @@ resource "aws_codepipeline" "zendrix_pipeline" {
       owner           = "AWS"
       provider        = "CodeDeploy"
       version         = "1"
-      input_artifacts = ["build_artifact"]
+      input_artifacts = ["artifacts"]
       configuration   = {
         ApplicationName    = aws_codedeploy_app.zendrix_codedeploy_app.name
         DeploymentGroupName = aws_codedeploy_deployment_group.zendrix_codedeploy_deployment_group.deployment_group_name
