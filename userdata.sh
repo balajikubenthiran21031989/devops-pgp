@@ -8,7 +8,7 @@ sudo chmod 777 /home/ubuntu/efs
 cd /home/ubuntu
 # Clone the source code
 git clone {{ github_link }}
-cd aws-devops-pgp/
+cd devops-pgp/
 sudo apt-get install -y python3 tmux python3-pip
 sudo pip3 install flask pymsql boto3
 tmux new -s app
